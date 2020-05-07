@@ -19,6 +19,10 @@ import com.facebook.presto.router.cluster.ClusterStatusTracker;
 import com.facebook.presto.router.cluster.ForClusterInfoTracker;
 import com.facebook.presto.router.cluster.ForQueryInfoTracker;
 import com.facebook.presto.router.cluster.RemoteInfoFactory;
+import com.facebook.presto.router.predictor.ForQueryCpuPredictor;
+import com.facebook.presto.router.predictor.ForQueryMemoryPredictor;
+import com.facebook.presto.router.predictor.PredictorManager;
+import com.facebook.presto.router.predictor.RemoteQueryFactory;
 import com.google.inject.Binder;
 import com.google.inject.Scopes;
 import io.airlift.configuration.AbstractConfigurationAwareModule;
@@ -53,6 +57,19 @@ public class RouterModule
                     config.setRequestTimeout(new Duration(10, SECONDS));
                 });
         binder.bind(ClusterStatusTracker.class).in(Scopes.SINGLETON);
+
+        binder.bind(RemoteQueryFactory.class).in(Scopes.SINGLETON);
+        httpClientBinder(binder).bindHttpClient("query-predictor", ForQueryCpuPredictor.class)
+                .withConfigDefaults(config -> {
+                    config.setIdleTimeout(new Duration(30, SECONDS));
+                    config.setRequestTimeout(new Duration(2, SECONDS));
+                });
+        httpClientBinder(binder).bindHttpClient("query-predictor", ForQueryMemoryPredictor.class)
+                .withConfigDefaults(config -> {
+                    config.setIdleTimeout(new Duration(30, SECONDS));
+                    config.setRequestTimeout(new Duration(2, SECONDS));
+                });
+        binder.bind(PredictorManager.class).in(Scopes.SINGLETON);
 
         jaxrsBinder(binder).bind(RouterResource.class);
         jaxrsBinder(binder).bind(ClusterStatusResource.class);
