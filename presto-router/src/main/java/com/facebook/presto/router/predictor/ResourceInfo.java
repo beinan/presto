@@ -13,6 +13,10 @@
  */
 package com.facebook.presto.router.predictor;
 
+/**
+ * The interface for resource usage information.
+ * This interface should be implemented for specific types of resources.
+ */
 public interface ResourceInfo
 {
 }

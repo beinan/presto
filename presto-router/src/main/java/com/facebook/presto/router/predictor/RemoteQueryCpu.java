@@ -25,6 +25,11 @@ import java.util.Map;
 
 import static io.airlift.http.client.HttpStatus.OK;
 
+/**
+ * The wrapper class for predicted CPU time queries.
+ * In a successful query's response body, the class explicitly checks
+ * `CPU_TIME_LABEL` and `CPU_TIME_STR`.
+ */
 @ThreadSafe
 public class RemoteQueryCpu
         extends RemoteQuery

@@ -22,6 +22,9 @@ import java.net.URI;
 import static io.airlift.http.client.HttpUriBuilder.uriBuilderFrom;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * The factory class to create HTTP clients for predicted CPU and memory usage queries.
+ */
 public class RemoteQueryFactory
 {
     private static final String QUERY_CPU_URI = "/cpu";

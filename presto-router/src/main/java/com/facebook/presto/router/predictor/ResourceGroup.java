@@ -15,6 +15,9 @@ package com.facebook.presto.router.predictor;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * The wrapper class for resource usages.
+ */
 public class ResourceGroup
 {
     private final CpuInfo cpuInfo;

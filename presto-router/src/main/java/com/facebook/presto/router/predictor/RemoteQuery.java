@@ -35,6 +35,13 @@ import static io.airlift.json.JsonCodec.jsonCodec;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An abstract class representing each query for the predicted resource usage.
+ * In each response,
+ * 1) if the HTTP status is not 200, error details will be wrapped in JSON in the response body.
+ * 2) if the HTTP status is 200, predicted resource usage will be returned in JSON.
+ * Inherited classes may override the `handleResponse()` method to handle the responses.
+ */
 @ThreadSafe
 public abstract class RemoteQuery
 {
@@ -65,7 +72,8 @@ public abstract class RemoteQuery
                         .setBodyGenerator(createStaticBodyGenerator(body, UTF_8))
                         .build();
 
-        FullJsonResponseHandler.JsonResponse<JsonNode> result = httpClient.execute(request, createFullJsonResponseHandler(JSON_CODEC));
+        FullJsonResponseHandler.JsonResponse<JsonNode> result =
+                httpClient.execute(request, createFullJsonResponseHandler(JSON_CODEC));
         log.info("Received response from %s", remoteUri);
         if (result != null) {
             if (result.getStatusCode() != OK.code()) {

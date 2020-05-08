@@ -25,6 +25,11 @@ import java.util.concurrent.Future;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * The manager of fetching predicted resource usage of a SQL statement from the
+ * Presto query predictor.
+ * Note that it does not validate the SQL statements passed in.
+ */
 public class PredictorManager
 {
     private static final Logger log = Logger.get(PredictorManager.class);

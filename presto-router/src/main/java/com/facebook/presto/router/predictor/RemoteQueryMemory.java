@@ -18,15 +18,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.airlift.http.client.HttpClient;
 import io.airlift.log.Logger;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import java.net.URI;
 import java.util.Map;
 
 import static io.airlift.http.client.HttpStatus.OK;
 
+/**
+ * The wrapper class for predicted peak memory bytes queries.
+ * In a successful query's response body, the class explicitly checks
+ * `MEMORY_BYTES_LABEL` and `MEMORY_BYTES_STR`.
+ */
+@ThreadSafe
 public class RemoteQueryMemory
         extends RemoteQuery
 {
-    private static final Logger log = Logger.get(com.facebook.presto.router.predictor.RemoteQueryMemory.class);
+    private static final Logger log = Logger.get(RemoteQueryMemory.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private static final String MEMORY_BYTES_LABEL = "memory_pred_label";
