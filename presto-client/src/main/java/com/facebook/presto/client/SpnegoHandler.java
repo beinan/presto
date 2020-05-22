@@ -59,7 +59,6 @@ import static javax.security.auth.login.AppConfigurationEntry.LoginModuleControl
 import static org.ietf.jgss.GSSContext.INDEFINITE_LIFETIME;
 import static org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME;
 import static org.ietf.jgss.GSSCredential.INITIATE_ONLY;
-import static org.ietf.jgss.GSSName.NT_HOSTBASED_SERVICE;
 import static org.ietf.jgss.GSSName.NT_USER_NAME;
 
 // TODO: This class is similar to SpnegoAuthentication in Airlift. Consider extracting a library.
@@ -133,7 +132,7 @@ public class SpnegoHandler
     private Request authenticate(Request request)
     {
         String hostName = request.url().host();
-        String principal = makeServicePrincipal(remoteServiceName, hostName, useCanonicalHostname);
+        String principal = remoteServiceName; //makeServicePrincipal(remoteServiceName, hostName, useCanonicalHostname);
         byte[] token = generateToken(principal);
 
         String credential = format("%s %s", NEGOTIATE, Base64.getEncoder().encodeToString(token));
@@ -149,7 +148,7 @@ public class SpnegoHandler
             Session session = getSession();
             context = doAs(session.getLoginContext().getSubject(), () -> {
                 GSSContext result = GSS_MANAGER.createContext(
-                        GSS_MANAGER.createName(servicePrincipal, NT_HOSTBASED_SERVICE),
+                        GSS_MANAGER.createName(servicePrincipal, NT_USER_NAME),
                         SPNEGO_OID,
                         session.getClientCredential(),
                         INDEFINITE_LIFETIME);
