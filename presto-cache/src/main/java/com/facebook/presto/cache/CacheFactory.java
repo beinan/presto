@@ -51,7 +51,7 @@ public class CacheFactory
                         validationEnabled);
             case ALLUXIO:
                 ExtendedFileSystem cachingFileSystem = new AlluxioCachingFileSystem(fileSystem, factoryUri, validationEnabled);
-                cachingFileSystem.initialize(factoryUri, factoryConfig);
+                cachingFileSystem.initialize(URI.create("alluxio:///tmp"), factoryConfig);
                 return cachingFileSystem;
             default:
                 throw new IllegalArgumentException("Invalid CacheType: " + cacheType.name());

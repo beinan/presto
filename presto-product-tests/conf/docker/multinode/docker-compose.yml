@@ -11,6 +11,11 @@ services:
       file: ../common/standard.yml
       service: java-8-base
     command: /docker/volumes/conf/docker/files/presto-launcher-wrapper.sh multinode-worker run
+    ports:
+      - '7896:7896'
+      - '8081:8081'
+      - '39999:39999'
+      - '39998:39998'
     depends_on:
       - presto-master
     volumes_from:
