@@ -13,21 +13,33 @@
  */
 package com.facebook.presto.cache.alluxio;
 
-import alluxio.client.file.URIStatus;
-import alluxio.wire.FileInfo;
+import alluxio.client.file.CacheContext;
+import alluxio.client.quota.CacheQuota;
+import alluxio.client.quota.CacheScope;
 import com.facebook.presto.hive.HiveFileContext;
+import com.google.common.collect.ImmutableMap;
 
 import static java.util.Objects.requireNonNull;
 
-public class AlluxioURIStatus
-        extends URIStatus
+public class PrestoCacheContext
+        extends CacheContext
 {
     private final HiveFileContext hiveFileContext;
 
-    public AlluxioURIStatus(FileInfo info, HiveFileContext hiveFileContext)
+    public PrestoCacheContext(String cacheIdentifier, HiveFileContext hiveFileContext, boolean cacheQuotaEnabled)
     {
-        super(info);
         this.hiveFileContext = requireNonNull(hiveFileContext, "hiveFileContext is null");
+        setCacheIdentifier(cacheIdentifier);
+        if(cacheQuotaEnabled) {
+            CacheScope scope = CacheScope.create(hiveFileContext.getCacheQuota().getIdentity());
+            setCacheScope(scope);
+            if (hiveFileContext.getCacheQuota().getQuota().isPresent()) {
+                setCacheQuota(new CacheQuota(ImmutableMap.of(scope.level(), hiveFileContext.getCacheQuota().getQuota().get().toBytes())));
+            }
+            else {
+                setCacheQuota(CacheQuota.UNLIMITED);
+            }
+        }
     }
 
     public HiveFileContext getHiveFileContext()
