@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.cache.alluxio;
 
+import alluxio.client.file.CacheContext;
 import alluxio.client.file.URIStatus;
 import alluxio.wire.FileInfo;
 import com.facebook.presto.hive.HiveFileContext;
@@ -24,9 +25,9 @@ public class AlluxioURIStatus
 {
     private final HiveFileContext hiveFileContext;
 
-    public AlluxioURIStatus(FileInfo info, HiveFileContext hiveFileContext)
+    public AlluxioURIStatus(FileInfo info, CacheContext context, HiveFileContext hiveFileContext)
     {
-        super(info);
+        super(info, requireNonNull(context, "cacheContext is null"));
         this.hiveFileContext = requireNonNull(hiveFileContext, "hiveFileContext is null");
     }
 

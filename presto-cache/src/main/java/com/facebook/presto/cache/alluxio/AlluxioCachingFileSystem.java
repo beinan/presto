@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.cache.alluxio;
 
+import alluxio.client.file.CacheContext;
 import alluxio.client.quota.CacheQuota;
 import alluxio.client.quota.CacheScope;
 import alluxio.hadoop.LocalCacheFileSystem;
@@ -81,22 +82,27 @@ public class AlluxioCachingFileSystem
             // FilePath is a unique identifier for a file, however it can be a long string
             // hence using md5 hash of the file path as the identifier in the cache.
             // We don't set fileId because fileId is Alluxio specific
-            FileInfo info = new FileInfo().setFileIdentifier(md5().hashString(path.toString(), UTF_8).toString())
+            FileInfo info = new FileInfo()
                     .setPath(path.toString())
                     .setFolder(false)
                     .setLength(hiveFileContext.getFileSize().get());
+            CacheContext cacheContext = new CacheContext().setCacheIdentifier(md5().hashString(path.toString(), UTF_8).toString()) {
+                public void incrementCounter(String name, long value) {
+                    // Default implementation does nothing
+                }
+            };
             if (cacheQuotaEnabled) {
                 CacheScope scope = CacheScope.create(hiveFileContext.getCacheQuota().getIdentity());
-                info.setCacheScope(scope);
+                cacheContext.setCacheScope(scope);
                 if (hiveFileContext.getCacheQuota().getQuota().isPresent()) {
-                    info.setCacheQuota(new CacheQuota(ImmutableMap.of(scope.level(), hiveFileContext.getCacheQuota().getQuota().get().toBytes())));
+                    cacheContext.setCacheQuota(new CacheQuota(ImmutableMap.of(scope.level(), hiveFileContext.getCacheQuota().getQuota().get().toBytes())));
                 }
                 else {
-                    info.setCacheQuota(CacheQuota.UNLIMITED);
+                    cacheContext.setCacheQuota(CacheQuota.UNLIMITED);
                 }
             }
             // URIStatus is the mechanism to pass the hiveFileContext to the source filesystem
-            AlluxioURIStatus alluxioURIStatus = new AlluxioURIStatus(info, hiveFileContext);
+            AlluxioURIStatus alluxioURIStatus = new AlluxioURIStatus(info, cacheContext, hiveFileContext);
             FSDataInputStream cachingInputStream = localCacheFileSystem.open(alluxioURIStatus, BUFFER_SIZE);
             if (cacheValidationEnabled) {
                 return new CacheValidatingInputStream(
